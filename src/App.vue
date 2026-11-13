@@ -1,9 +1,11 @@
 <template>
-  <div id="app" class="min-vh-100 bg-light">
+  <div id="app" class="app-layout">
     <app-bar></app-bar>
-    <main class="container py-4" style="max-width: 720px;">
-      <task-form @task-added="refreshTasks"></task-form>
-      <task-list ref="taskListRef"></task-list>
+    <main class="main-content">
+      <div class="container">
+        <task-form @task-added="refreshTasks"></task-form>
+        <task-list ref="taskListRef"></task-list>
+      </div>
     </main>
   </div>
 </template>
@@ -22,3 +24,22 @@ function refreshTasks() {
   }
 }
 </script>
+
+<style>
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+.app-layout {
+  min-height: 100vh;
+}
+.main-content {
+  padding: 2.5rem 1rem;
+}
+.container {
+  max-width: 680px;
+  margin: 0 auto;
+}
+</style>
