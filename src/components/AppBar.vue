@@ -1,62 +1,43 @@
 <template>
-  <header>
-    <h1>Task List</h1>
-    <div class="spacer"></div>
-    <div v-if="!user"><a :href="loginUrl">Login</a></div>
-    <swd-toggle-button v-else v-model:active="drawerOpen">&#x1F464;</swd-toggle-button>
-    <swd-drawer v-model:open="drawerOpen">
-      <div>User: {{ user?.email }}</div>
-      <div><a :href="logoutUrl">Logout</a></div>
-    </swd-drawer>
-  </header>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4 py-2 border-bottom shadow-sm">
+    <a href="#" class="navbar-brand fw-bold">BYU ITC-210 Tasks</a>
+    <div class="ms-auto d-flex align-items-center gap-3">
+      <div v-if="!user">
+        <a :href="loginUrl" class="btn btn-outline-light btn-sm">Login with Google</a>
+      </div>
+      <div v-else class="d-flex align-items-center gap-3 text-white">
+        <div class="d-flex align-items-center gap-2">
+          <img v-if="user.picture" :src="user.picture" alt="Profile" class="rounded-circle border border-light" width="32" height="32" />
+          <span class="material-icons" v-else>account_circle</span>
+          <span>Welcome, <strong>{{ user.name || user.email }}</strong></span>
+        </div>
+        <a :href="logoutUrl" class="btn btn-outline-light btn-sm">Log Out</a>
+      </div>
+    </div>
+  </nav>
 </template>
 
 <script setup>
-import SwdToggleButton from './SwdToggleButton.vue';
-import SwdDrawer from "./SwdDrawer.vue";
 import { ref, onMounted } from 'vue';
 
-// In Vue, .env values appear in the import.meta.env object.
-const apiUrl = import.meta.env.VITE_API_URL;
-const loginUrl = apiUrl + "/api/v1/auth/google?returnTo=" + window.location.href;
-const logoutUrl = apiUrl + "/api/v1/auth/logout?returnTo=" + window.location.href;
-
-// User must be a ref type so that when one component changes it, other components are notified.
-// It defaults to null when the user has not logged in.
+const loginUrl = import.meta.env.VITE_API_URL + "/api/v1/auth/google?returnTo=" + window.location.href;
+const logoutUrl = import.meta.env.VITE_API_URL + "/api/v1/auth/logout?returnTo=" + window.location.href;
 const user = ref(null);
-const drawerOpen = ref(false);
 
 async function getUser() {
   try {
+    const apiUrl = import.meta.env.VITE_API_URL;
+    if (!apiUrl) return;
     let response = await fetch(`${apiUrl}/api/v1/user`, { credentials: 'include' });
     if (!response.ok) {
       user.value = null;
       return;
     }
     user.value = await response.json();
-  }
-  catch (err) {
+  } catch (err) {
     console.error(err.message);
   }
 }
 
-// onMounted is called by Vue once the component has been loaded into the DOM
 onMounted(getUser);
 </script>
-
-<style scoped>
-header {
-  display: flex;
-  align-items: center;
-}
-
-h1 {
-  font-size: 2em;
-  font-weight: bold;
-  color: darkblue;
-}
-
-div.spacer {
-  flex-grow: 1;
-}
-</style>

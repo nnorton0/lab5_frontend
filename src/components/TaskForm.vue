@@ -1,62 +1,44 @@
 <template>
-  <div id="task-form">
-    <form @submit.prevent="addTask">
-      <div>
-        <label for="task-text">Task Description:</label>
-        <input id="task-text" type="text" v-model="text" class="task-form-input" required />
-      </div>
-      <div>
-        <label for="task-date">Due Date:</label>
-        <input id="task-date" type="date" v-model="date" class="task-form-input" required />
-      </div>
-      <button type="submit" class="btn-create-task">Add Task</button>
-    </form>
-  </div>
+  <form @submit.prevent="submitTask" class="card p-4 shadow-sm mb-4 border-0">
+    <h4 class="mb-3 fw-bold text-dark">Create Task</h4>
+    <div class="mb-3">
+      <input type="text" v-model="title" class="form-control" placeholder="Task description" required>
+    </div>
+    <div class="mb-3">
+      <input type="date" v-model="dueDate" class="form-control" required>
+    </div>
+    <div>
+      <button type="submit" class="btn btn-primary px-4">Create Task</button>
+    </div>
+  </form>
 </template>
 
 <script setup>
 import { ref } from 'vue';
 
-const emit = defineEmits(['added']);
-const text = ref('');
-const date = ref('');
+const emit = defineEmits(['task-added']);
+const title = ref('');
+const dueDate = ref('');
 const apiUrl = import.meta.env.VITE_API_URL;
 
-async function addTask() {
-  if (!text.value || !date.value) return;
+async function submitTask() {
+  if (!title.value.trim() || !dueDate.value) return;
 
   try {
-    let response = await fetch(`${apiUrl}/api/v1/tasks`, {
+    const response = await fetch(`${apiUrl}/api/v1/tasks`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify({ text: text.value, date: date.value })
+      body: JSON.stringify({ title: title.value, dueDate: dueDate.value, done: false })
     });
 
     if (response.ok) {
-      text.value = '';
-      date.value = '';
-      emit('added');
+      title.value = '';
+      dueDate.value = '';
+      emit('task-added');
     }
   } catch (err) {
-    console.error(err.message);
+    console.error('Error creating task:', err);
   }
 }
 </script>
-
-<style scoped>
-#task-form {
-  margin-bottom: 1.5rem;
-  padding: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-div {
-  margin-bottom: 0.75rem;
-}
-label {
-  display: block;
-  font-weight: bold;
-  margin-bottom: 0.25rem;
-}
-</style>
